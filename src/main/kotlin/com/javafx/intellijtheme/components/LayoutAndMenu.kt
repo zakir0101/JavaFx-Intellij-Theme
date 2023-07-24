@@ -1,8 +1,12 @@
 package com.javafx.intellijtheme.components
 
 
+import com.javafx.intellijtheme.getTabPaneData
+import com.javafx.intellijtheme.intellij.IntellijStyles
+import com.javafx.intellijtheme.replaceClassIf
 import javafx.event.EventTarget
 import javafx.geometry.Pos
+import javafx.scene.control.TabPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
@@ -11,6 +15,40 @@ import org.kordamp.ikonli.materialdesign2.*
 import tornadofx.View
 import tornadofx.fold
 import tornadofx.*
+
+
+
+class LayoutAndMenu : View() {
+
+    override val root =
+        tabpane {
+            removeClass(Stylesheet.tabPane)
+            IntellijStyles.darkMode.addListener { _, _, newValue ->
+                this.replaceClassIf(IntellijStyles.myTabPaneDark, IntellijStyles.myTabPaneLight,newValue)
+            }
+            tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
+            hgrow = Priority.ALWAYS
+            vgrow = Priority.ALWAYS
+            useMaxSize = true
+            getTabPaneData().forEachIndexed { index, uiCategory ->
+
+                tab(uiCategory.name) {
+                    graphic = uiCategory.icon
+                    useMaxSize = true
+                    vbox(alignment = Pos.CENTER) {
+                        useMaxSize
+                        this.add(uiCategory.node)
+                    }
+                }
+
+            }
+
+
+        }
+
+
+}
+
 
 
 class Accordion : View() {
@@ -123,16 +161,11 @@ class VBoxHBox : HBox() {
                 backgroundColor += Color.BLACK
             }
             useMaxHeight = true
-            prefWidth = 200.0
-//            setSizePercentage(35.0,100.0)
-//            setWidthPercentage(35.0)
-//            setHeightPercentage(100.0)
+            prefWidth = 20.0
         }
         vbox {
             useMaxHeight = true
             hgrow = Priority.ALWAYS
-//            setHeightPercentage(100.0)
-//            setWidthPercentage(65.0)
             pane {
                 useMaxWidth = true
                 vgrow = Priority.ALWAYS
@@ -141,7 +174,7 @@ class VBoxHBox : HBox() {
             }
             hbox {
                 useMaxWidth = true
-                prefHeight = 120.0
+                prefHeight = 20.0
 //                setWidthPercentage(100.0)
 //                setHeightPercentage(10.0)
                 pane {

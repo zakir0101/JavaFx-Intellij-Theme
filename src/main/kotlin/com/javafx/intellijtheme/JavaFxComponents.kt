@@ -1,13 +1,14 @@
 package com.javafx.intellijtheme
 
 import com.javafx.intellijtheme.intellij.IntellijStyles
+import com.javafx.intellijtheme.intellij.expandableListMenu
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import tornadofx.*
 
 
-class ExpandableListMenu : View() {
+class JavaFxComponents : View() {
 
     override val root = hbox {
         val container = VBox().apply {
@@ -23,31 +24,13 @@ class ExpandableListMenu : View() {
         hgrow = Priority.ALWAYS
         vgrow = Priority.ALWAYS
 
-        vbox {
-            useMaxHeight = true
-            val myBox = this
-            IntellijStyles.darkMode.addListener { _, _, newValue ->
-                this.replaceClassIf(IntellijStyles.bgPrimaryDark, IntellijStyles.bgPrimaryLight, newValue)
-            }
-            this.addClass(MyStyles.collapse)
-            this.focusedProperty().addListener { _, _, focused ->
-                if (focused) addClass(Stylesheet.focused) else removeClass(Stylesheet.focused)
-            }
-            this.setOnMouseClicked { this.requestFocus() }
-
-            listmenu(theme = "blue") {
-                IntellijStyles.darkMode.addListener { _, _, isDark ->
-                    this.replaceClassIf(IntellijStyles.listMenuClassDark, IntellijStyles.listMenuClassLight, isDark)
-                }
-                this.setOnMouseClicked { myBox.requestFocus() }
-                useMaxWidth = true
-                paddingRight = 3.0
+        expandableListMenu {
+            this.elistMenu = listmenu(theme = "blue") {
                 getListMenuData().forEachIndexed { index, uiCategory ->
                     item(
                         text = uiCategory.name,
                         graphic = uiCategory.icon
                     ) {
-                        addClass(IntellijStyles.listMenuItemClass)
                         if (index == 0) {
                             activeItem = this
                             addClass(Stylesheet.selected)
@@ -68,7 +51,6 @@ class ExpandableListMenu : View() {
 
 
             }
-
 
         }
 

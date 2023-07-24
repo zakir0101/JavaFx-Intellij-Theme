@@ -19,18 +19,19 @@ class IntellijTabPane : View() {
             tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
             hgrow = Priority.ALWAYS
             vgrow = Priority.ALWAYS
-            getTabPaneData().forEachIndexed { index, uiCategory ->
-
-                tab(uiCategory.name) {
-                    graphic = uiCategory.icon
-                    useMaxSize = true
-                    vbox(alignment = Pos.CENTER) {
-                        useMaxSize
-                        this.add(uiCategory.node)
-                    }
-                }
-
-            }
+            useMaxSize = true
+//            getTabPaneData().forEachIndexed { index, uiCategory ->
+//
+//                tab(uiCategory.name) {
+//                    graphic = uiCategory.icon
+//                    useMaxSize = true
+//                    vbox(alignment = Pos.CENTER) {
+//                        useMaxSize
+//                        this.add(uiCategory.node)
+//                    }
+//                }
+//
+//            }
 
 
         }

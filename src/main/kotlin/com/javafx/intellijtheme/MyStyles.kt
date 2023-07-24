@@ -1,6 +1,7 @@
 package com.javafx.intellijtheme
 
 import com.javafx.intellijtheme.intellij.IntellijStyles
+import javafx.geometry.Side
 import javafx.scene.paint.Color
 import tornadofx.*
 
@@ -15,11 +16,11 @@ class MyStyles : IntellijStyles() {
         val myGridPaneDark by cssclass()
         val myGridPaneItem by cssclass()
         val myGridPaneLable by cssclass()
-
+        val bottomDrawer by cssid()
     }
 
     init {
-        collapse{
+        collapse {
 
             focusTraversable = true
             prefWidth = 45.px
@@ -33,7 +34,7 @@ class MyStyles : IntellijStyles() {
                     visibility = FXVisibility.COLLAPSE
                 }
             }
-            and(focused){
+            and(focused) {
                 prefWidth = 300.px
                 maxWidth = 300.px
                 minWidth = 300.px
@@ -46,12 +47,12 @@ class MyStyles : IntellijStyles() {
             }
         }
 
-        scrollPane{
-            backgroundColor = multi(Color.TRANSPARENT)
-            backgroundInsets = multi(box(0.px))
-            borderWidth = multi(box(0.px))
-
-        }
+//        scrollPane {
+//            backgroundColor = multi(Color.TRANSPARENT)
+//            backgroundInsets = multi(box(0.px))
+//            borderWidth = multi(box(0.px))
+//
+//        }
 
 
         listOf(myGridPaneLight, myGridPaneDark).forEachIndexed { index, cssRule ->
@@ -66,7 +67,7 @@ class MyStyles : IntellijStyles() {
                 }
 
                 myGridPaneLable {
-                    text{
+                    text {
                         fill = onPrimary.get(index)
                     }
                     backgroundColor += secondary.get(index)
@@ -74,7 +75,25 @@ class MyStyles : IntellijStyles() {
                 }
 
             }
+
         }
+
+//        DrawerStyles.drawer {
+//            DrawerStyles.contentArea {
+//                prefWidth = 300.px
+//            }
+//        }
+//
+//        bottomDrawer {
+//            prefWidth = -1.px
+//            DrawerStyles.contentArea {
+//                backgroundColor += Color.TRANSPARENT
+//                padding = box(0.px, 25.px, 0.px, 25.px)
+//                prefWidth = -1.px
+//                borderColor = multi(box(Color.TRANSPARENT, primary.light, primary.light, primary.light))
+//            }
+//        }
+//
     }
 
 

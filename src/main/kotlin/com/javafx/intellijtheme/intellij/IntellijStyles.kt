@@ -5,6 +5,9 @@ import com.javafx.intellijtheme.MyStyles
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
+import javafx.scene.paint.CycleMethod
+import javafx.scene.paint.LinearGradient
+import javafx.scene.paint.Stop
 import tornadofx.*
 
 class StyleColor(var light: Color, val dark: Color) {
@@ -38,6 +41,8 @@ open class IntellijStyles : Stylesheet() {
         val stageBorderRight by cssid()
         val stageBorderLeft by cssid()
         val stageBorderBottom by cssid()
+        val stageCornerLeft by cssid()
+        val stageCornerRight by cssid()
 
         val listMenuClassLight by cssclass()
         val listMenuClassDark by cssclass()
@@ -45,6 +50,12 @@ open class IntellijStyles : Stylesheet() {
 
         val bgPrimaryLight by cssclass()
         val bgPrimaryDark by cssclass()
+
+        val bgGradientLight by cssclass()
+        val bgGradientDark by cssclass()
+
+        val expandableListMenuLight by cssclass()
+        val expandableListMenuDark by cssclass()
 
         val textOnPrimaryLight by cssclass()
         val textOnPrimaryDark by cssclass()
@@ -55,6 +66,16 @@ open class IntellijStyles : Stylesheet() {
         val myTabPaneLight by cssclass()
         val myTabPaneDark by cssclass()
 
+        val drawerLight by cssclass()
+        val drawerDark by cssclass()
+        val drawerItemResizer by cssclass()
+
+        val intellijLight by cssclass()
+        val intellijDark by cssclass()
+        val bottomDrawer by cssid()
+
+        val intellijTableLight by cssclass()
+        val intellijTableDark by cssclass()
         val primary = StyleColor(Color.web("#F2F2F2"), Color.web("#3C3F41"))
         val primarySelected = StyleColor(Color.web("#D4D4D4"), Color.web("#0D293E"))
         val onPrimarySelected = StyleColor(Color.BLACK, Color.WHITE)
@@ -74,6 +95,23 @@ open class IntellijStyles : Stylesheet() {
             darkMode.set(boolean)
         }
 
+        fun setDarkMode() {
+            setDarkMode(false)
+            setDarkMode(true)
+        }
+
+        fun setLightMode() {
+            setDarkMode(true)
+            setDarkMode(false)
+        }
+
+        fun updateTheme() {
+            if (darkMode.get() == true)
+                setDarkMode(true)
+            else
+                setDarkMode(false)
+        }
+
         fun StyleColor.getColor(): Color {
             return this.get(modeIndex)
         }
@@ -86,6 +124,16 @@ open class IntellijStyles : Stylesheet() {
         listOf(bgPrimaryLight, bgPrimaryDark).forEachIndexed { index, cssRule ->
             cssRule {
                 backgroundColor += primary.get(index)
+            }
+        }
+
+
+        listOf(bgGradientLight, bgGradientDark).forEachIndexed { index, cssRule ->
+            val stops = listOf(Stop(0.0, primary.get(index)), Stop(1.0, IntellijStyles.primarySelected.get(index)));
+            val lg1 = LinearGradient(0.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE, stops)
+
+            cssRule {
+                backgroundColor += lg1
             }
         }
 
@@ -324,7 +372,7 @@ open class IntellijStyles : Stylesheet() {
                     minWidth = 50.px
                     minHeight = 50.px
                     progressColor = (tertiary2.get(index))
-                    tick{
+                    tick {
                         backgroundColor += primary.get(index)
                     }
                     text {
@@ -532,19 +580,32 @@ open class IntellijStyles : Stylesheet() {
 
         listOf(stageLight, stageDark).forEachIndexed { index, stage ->
             stage {
+
+                backgroundColor += Color.TRANSPARENT
+
                 stageBorderRight {
-                    cursor = Cursor.H_RESIZE
+                    cursor = Cursor.E_RESIZE
                     backgroundColor += primary.get(index)
                 }
 
                 stageBorderLeft {
                     backgroundColor += primary.get(index)
-                    cursor = Cursor.H_RESIZE
+                    cursor = Cursor.W_RESIZE
                 }
 
                 stageBorderBottom {
                     backgroundColor += primary.get(index)
-                    cursor = Cursor.V_RESIZE
+                    cursor = Cursor.S_RESIZE
+                }
+
+                stageCornerLeft {
+                    cursor = Cursor.SW_RESIZE
+                    backgroundColor += primary.get(index)
+
+                }
+                child(stageCornerRight) {
+                    cursor = Cursor.SE_RESIZE
+                    backgroundColor += primary.get(index)
                 }
 
             }
@@ -557,8 +618,9 @@ open class IntellijStyles : Stylesheet() {
 
         listOf(appbarLight, appbarDark).forEachIndexed { index, appbar ->
             appbar {
-                backgroundColor += primary.get(index)
-
+                backgroundInsets = multi(box(0.px))
+                backgroundColor = multi(primary.get(index))
+                borderWidth = multi(box(0.px))
                 appbarTitle {
                     textFill = onPrimaryVariant.get(index)
                     fill = onPrimaryVariant.get(index)
@@ -668,9 +730,16 @@ open class IntellijStyles : Stylesheet() {
             cssRule {
                 backgroundColor += secondary.get(index)
                 padding = box(0.px)
-                borderInsets = multi(box(1.px, 0.px, 1.px, 0.px))
+                borderWidth = multi(box(1.px, 0.px, 0.px, 0.px))
                 borderColor =
-                    multi(box(onPrimaryVariant.get(index), Color.TRANSPARENT, onPrimaryVariant.get(index), Color.TRANSPARENT))
+                    multi(
+                        box(
+                            onPrimaryVariant.get(index),
+                            onPrimaryVariant.get(index),
+                            onPrimaryVariant.get(index),
+                            onPrimaryVariant.get(index)
+                        )
+                    )
 
                 tabHeaderArea {
                     padding = box(0.px, 0.px, 0.px, 0.px)
@@ -743,13 +812,225 @@ open class IntellijStyles : Stylesheet() {
 
 
         // *******************************************************************
-        // ********************* Tab pane   ***********************************
+        // ********************* expandable List Menu   **********************
         // *******************************************************************
 
-        text
+        listOf(expandableListMenuLight, expandableListMenuDark).forEachIndexed { index, cssRule ->
+            cssRule {
+                backgroundColor += primary.get(index)
+                focusTraversable = true
+                prefWidth = 45.px
+                maxWidth = 45.px
+                minWidth = 45.px
+                listMenuItemClass {
+                    prefWidth = 45.px
+                    maxWidth = 45.px
+                    minWidth = 45.px
+                    Stylesheet.text {
+                        visibility = FXVisibility.COLLAPSE
+                    }
+                }
+                button {
+
+                    visibility = FXVisibility.VISIBLE
+                    borderInsets = multi(box(0.px))
+                    borderColor = multi(box(Color.TRANSPARENT))
+                    borderWidth = multi(box(0.px))
+                    backgroundInsets = multi(box(0.px))
+                    backgroundColor = multi(primary.get(index))
+
+                    and(hover) {
+                        backgroundColor = multi(primary.get(index).derive(0.5))
+
+                    }
+
+                }
+
+                and(focused) {
+                    prefWidth = 300.px
+                    maxWidth = 300.px
+                    minWidth = 300.px
+                    listMenuItemClass {
+                        Stylesheet.text {
+                            visibility = FXVisibility.VISIBLE
+                        }
+                    }
+                    button {
+                        visibility = FXVisibility.COLLAPSE
+
+                    }
+                }
+
+            }
+
+        }
+
+        // *******************************************************************
+        // ********************* Drawer    ***********************************
+        // *******************************************************************
+
+        listOf(drawerLight, drawerDark).forEachIndexed { index, cssRule ->
+            cssRule {
+                DrawerStyles.drawerItem {
+                    backgroundColor += Color.TRANSPARENT
+                    drawerItemResizer {
+                        backgroundColor += primary.get(index)
+                    }
+                }
+
+                child(DrawerStyles.contentArea) {
+                    backgroundColor = multi(Color.TRANSPARENT)
+                    borderColor =
+                        multi(box(Color.TRANSPARENT, primary.get(index), primary.get(index), primary.get(index)))
+                    borderWidth = multi(box(0.px))
+                }
+
+                child(DrawerStyles.buttonArea) {
+                    spacing = 0.px
+                    padding = box(0.px)
+
+                    backgroundColor = multi(primary.get(index))
+                    toggleButton {
+                        padding = box(4.px, 8.px, 4.px, 8.px)
+                        backgroundInsets = multi(box(0.px))
+                        backgroundColor = multi(primary.get(index))
+                        borderWidth = multi(box(0.px))
+                        borderColor = multi(box(Color.TRANSPARENT))
+                        backgroundInsets += box(0.px)
+                        backgroundRadius += box(0.px)
+
+                        text {
+                            textFill = onPrimary.get(index)
+                            fill = onPrimary.get(index)
+                        }
+                        fontIcon {
+                            fill = onPrimary.get(index)
+                            fontSize = 14.px
+                        }
+                        and(selected) {
+                            backgroundColor += primary.get(index).brighter()
+                            borderColor = multi(
+                                box(Color.TRANSPARENT)
+                            )
+                        }
+                        listOf(hover, focused).forEach {
+                            and(it) {
+                                backgroundColor = multi(secondary.get(index))
+                            }
+                            and(selected) {
+                                backgroundColor += primary.get(index).brighter()
+
+                            }
+
+                        }
+
+
+                    }
+//                DrawerStyles.drawerItem child titledPane {
+//                    title {
+//                        backgroundRadius += box(0.px)
+//                        padding = box(2.px, 5.px)
+//                    }
+//                    content {
+//                        borderColor += box(Color.TRANSPARENT)
+//                    }
+//                }
+
+
+                }
+
+            }
+        }
+
+        // *******************************************************************
+        // ********************* Intellij    ***********************************
+        // *******************************************************************
+        listOf(intellijLight, intellijDark).forEachIndexed { index, cssRule ->
+            cssRule {
+                backgroundColor += secondary.get(index)
+                padding = box(0.px)
+                child(bottomDrawer) {
+                    child(DrawerStyles.buttonArea) {
+                        padding = box(0.px, 24.px, 0.px, 24.px)
+                    }
+                    child(DrawerStyles.contentArea) {
+                        padding = box(0.px, 25.px, 0.px, 25.px)
+
+                    }
+                }
+            }
+
+        }
+
+
+        // *******************************************************************
+        // ********************* Intellij Table    ***********************************
+        // *******************************************************************
+
+        listOf(intellijTableLight, intellijTableDark).forEachIndexed { index, cssRule ->
+            cssRule {
+
+                val stops = listOf(Stop(0.0, primary.get(index)), Stop(1.0, primarySelected.get(index)));
+                val lg1 = LinearGradient(0.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE, stops)
+
+                backgroundColor += Color.TRANSPARENT
+                and(focused) {
+                    backgroundColor += Color.TRANSPARENT
+                }
+                columnHeaderBackground {
+                    backgroundColor += lg1
+                    label {
+                        fill = onPrimary.get(index)
+                        textFill = onPrimary.get(index)
+                    }
+
+                    and(empty) {
+                        backgroundColor += Color.RED
+                    }
+                }
+
+                columnHeader {
+                    backgroundColor = multi(onPrimaryVariant.get(index), lg1)
+                    backgroundInsets = multi(box(0.px), box(0.px, 0.5.px, 0.5.px, 0.px))
+                    and(empty) {
+                        backgroundColor += Color.RED
+                    }
+                }
+                tableCell {
+                    borderColor += box(onPrimaryVariant.get(index))
+                    padding = box(2.px, 0.px, 2.px, 10.px)
+                    borderWidth = multi(box(0.5.px))
+
+                }
+                tableRowCell {
+                    backgroundColor = multi(onPrimary.get(index), primary.get(index))
+                    backgroundInsets = multi(box(0.px), box(0.px, 0.px, 0.5.px, 0.px))
+                    padding = box(0.px)
+                    text {
+                        fill = onPrimary.get(index)
+                    }
+                    and(odd) {
+                        backgroundColor = multi(onPrimary.get(index), secondary.get(index))
+                    }
+                    and(selected) {
+                        backgroundColor = multi(onPrimary.get(index), primarySelected.get(index))
+                        text {
+                            fill = onPrimarySelected.get(index)
+                        }
+                    }
+                }
+                tableColumn {
+
+
+                }
+
+            }
+        }
+
 
     }
 }
+
 
 
 

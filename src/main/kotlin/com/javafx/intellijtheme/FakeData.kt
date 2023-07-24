@@ -4,7 +4,6 @@ import com.javafx.intellijtheme.components.*
 import com.javafx.intellijtheme.components.Form
 import com.javafx.intellijtheme.intellij.IntellijStyles.Companion.getColor
 import com.javafx.intellijtheme.intellij.IntellijTabPane
-import com.javafx.intellijtheme.intellij.IntellijDrawer
 import com.javafx.intellijtheme.intellij.IntellijStyles
 import javafx.scene.Group
 import javafx.scene.Node
@@ -31,6 +30,11 @@ data class UIIItem(val name: String, val icon: FontIcon, val node: Node)
 
 fun getListMenuData() = listOf(
 
+    UIIItem(
+        "Layout and Menus",
+        FontIcon().from(MaterialDesignG.GOOGLE, 22, IntellijStyles.tertiary1.getColor()),
+        find(LayoutAndMenu::class).root
+    ),
 
     UIIItem(
         "Basic Controls",
@@ -64,7 +68,7 @@ fun getListMenuData() = listOf(
     UIIItem(
         "Data Controls",
         FontIcon().from(MaterialDesignN.NAVIGATION, 22, IntellijStyles.tertiary2.getColor()),
-        VBox(find(IntellijDrawer::class).root.apply {
+        VBox(find(DataControls::class).root.apply {
             useMaxHeight = false
 //            maxHeight = 300.0
 //            minHeight = 300.0
@@ -72,11 +76,6 @@ fun getListMenuData() = listOf(
         }
         ).apply { }
     ),
-    UIIItem(
-        "Layout and Menus",
-        FontIcon().from(MaterialDesignG.GOOGLE, 22, IntellijStyles.tertiary1.getColor()),
-        find(IntellijTabPane::class).root
-    )
 )
 
 
@@ -112,6 +111,6 @@ fun getTabPaneData() = listOf(
     UIIItem(
         "VBoxHBox",
         FontIcon().from(MaterialDesignA.ACCOUNT_BOX),
-        VBoxHBox().apply { useMaxSize = true; vgrow = Priority.ALWAYS }
+        VBoxHBox().apply { setWidthExact(300.0) ; setHeightExact(150.0) }
     )
 )

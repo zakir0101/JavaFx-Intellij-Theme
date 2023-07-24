@@ -1,66 +1,161 @@
 package com.javafx.intellijtheme.intellij
 
-import javafx.beans.property.SimpleListProperty
+import com.javafx.intellijtheme.IntellijIDE
+import com.javafx.intellijtheme.setHeightExact
+import com.javafx.intellijtheme.setWidthExact
+import javafx.geometry.Pos
 import javafx.geometry.Side
+import javafx.scene.Cursor
+import javafx.scene.Node
 import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import tornadofx.*
 
 
 
-class Link(val name: String, val uri: String)
-class Person(val name: String, val nick: String)
+fun Drawer.intellijDrawerItem(
+    view: IntellijIDE,
+    title: String? = null,
+    icon: Node? = null,
+    expanded: Boolean = false,
+    showHeader: Boolean = multiselect,
+    op: VBox.() -> Unit
+) {
+    val drawer = this
+    val item = this.item(title, icon, expanded, false, {})
+    this.contentArea.style {
+        backgroundColor += Color.TRANSPARENT
+    }
+    if (drawer.dockingSide == Side.BOTTOM) {
+
+        item.alignment = Pos.TOP_CENTER
+        item.region {
+            addClass(IntellijStyles.drawerItemResizer)
+
+            setHeightExact(5.0)
+            useMaxWidth = true
+            style (append = true) {
+                cursor = Cursor.N_RESIZE
+            }
+
+            var mouseY = 0
+            this.setOnMouseReleased {
+                mouseY = 0
+            }
+            this.setOnMouseDragged {
+                val deltaHeight = it.screenY.toInt() - mouseY
+                val minH = 55.0
+                val maxH = view.primaryStage.height - 150.0
+                if (mouseY != 0 && (drawer.height - deltaHeight) < maxH && (drawer.height - deltaHeight) > minH) {
+                    drawer.setHeightExact(drawer.prefHeight - deltaHeight)
+                }
+                mouseY = it.screenY.toInt()
+            }
+
+        }
+
+
+        op(item)
+
+    } else if (drawer.dockingSide == Side.RIGHT) {
+        item.hbox {
+
+            vgrow = Priority.ALWAYS
+            this.region {
+                setWidthExact(5.0)
+                useMaxHeight = true
+                addClass(IntellijStyles.drawerItemResizer)
+                style (append = true) {
+                    cursor = Cursor.E_RESIZE
+                }
+                var mouseX = 0
+                this.setOnMouseReleased {
+                    mouseX = 0
+                }
+                this.setOnMouseDragged {
+                    val deltaWidth = it.screenX.toInt() - mouseX
+                    val minW = 55.0
+                    var maxW = view.primaryStage.width - 55.0
+                    val remainingWidth = view.primaryStage.width - drawer.prefWidth + deltaWidth - 55.0
+                    if (view.leftDrawer.contentArea.children.isNotEmpty())
+                        maxW -= view.leftDrawer.prefWidth
+                    else if (view.leftDrawer.contentArea.children.isEmpty() && view.leftDrawer.prefWidth > remainingWidth) {
+                        if ((remainingWidth) > minW + 1)
+                            view.leftDrawer.setWidthExact(remainingWidth)
+                        else
+                            view.leftDrawer.setWidthExact(minW + 1)
+                    }
+                    if (mouseX != 0 && (drawer.width - deltaWidth) < (view.primaryStage.width - 151.0) && (drawer.width - deltaWidth) < maxW && (drawer.width - deltaWidth) > minW) {
+                        drawer.setWidthExact(drawer.prefWidth - deltaWidth)
+                    }
+                    mouseX = it.screenX.toInt()
+                }
+
+            }
 
 
 
-val TornadoFXScreencastsURI = "https://www.google.com/"
-val _links = observableListOf(
-    Link("Google.com","http://google.com/"),
-    Link("JavaFX Docs","https://openjfx.io//"),
-    Link("TornadoFx Docs","https://docs.tornadofx.io//"),
-    Link("TornadoFx Screencast", TornadoFXScreencastsURI),
-    Link("Facebook","https://de-de.facebook.com//"),)
-
-var people = observableListOf<Person>(
-    Person("Mohamed","Ali",),
-    Person("John","Doa",),
-    Person("James","Bond",),
-    Person("Mike","Zuckerberg",),
+            this.vbox {
 
 
-)
-val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-val links = SimpleListProperty<Link>(_links)
-class IntellijDrawer : View("TornadoFX Info Browser") {
-    override val root = drawer(side = Side.BOTTOM ) {
-        vgrow = Priority.NEVER
-        item("Screencasts", expanded = true, showHeader = true) {
-            webview {
-                engine.javaScriptEnabledProperty().set(true)
-                prefWidth = 470.0
-                engine.userAgent = userAgent
-                engine.load(TornadoFXScreencastsURI)
+                hgrow = Priority.ALWAYS
+                this.op()
             }
         }
-        item("Links", showHeader = true) {
-            listview(links) {
-                cellFormat { link ->
-                    graphic = hyperlink(link.name) {
-                        setOnAction {
-                            hostServices.showDocument(link.uri)
+    } else if (drawer.dockingSide == Side.LEFT) {
+        item.hbox {
+            vgrow = Priority.ALWAYS
+
+            this.vbox {
+                hgrow = Priority.ALWAYS
+                this.op()
+                this.children.onChange { change ->
+                    while (change.next()) {
+                        if (change.wasAdded()) {
+                            change.addedSubList.asSequence()
+                                .filter { VBox.getVgrow(it) == null }
+                                .forEach { VBox.setVgrow(it, Priority.ALWAYS) }
                         }
                     }
                 }
             }
-        }
-        item("People",showHeader = true) {
-            tableview(people) {
-                readonlyColumn("Name", Person::name)
-                readonlyColumn("Nick", Person::nick)
-            }
-        }
 
+            this.region {
+                setWidthExact(5.0)
+                useMaxHeight = true
+                addClass(IntellijStyles.drawerItemResizer)
+                style (append = true) {
+                    cursor = Cursor.E_RESIZE
+                }
+                var mouseX = 0
+                this.setOnMouseReleased {
+                    mouseX = 0
+                }
+                this.setOnMouseDragged {
+                    val deltaWidth = it.screenX.toInt() - mouseX
+                    val minW = 55.0
+                    var maxW = view.primaryStage.width - 55.0
+                    val remainingWidth = view.primaryStage.width - drawer.prefWidth - deltaWidth - 55.0
+                    if (view.rightDrawer.contentArea.children.isNotEmpty())
+                        maxW -= view.rightDrawer.prefWidth
+                    else if (view.rightDrawer.contentArea.children.isEmpty() && view.rightDrawer.prefWidth > remainingWidth) {
+                        if ((remainingWidth) > minW + 1)
+                            view.rightDrawer.setWidthExact(remainingWidth)
+                        else
+                            view.rightDrawer.setWidthExact(minW + 1)
+                    }
+                    if (mouseX != 0 && (drawer.width + deltaWidth) < (view.primaryStage.width - 151.0) && (drawer.width + deltaWidth) < maxW && (drawer.width + deltaWidth) > minW) {
+                        drawer.setWidthExact(drawer.prefWidth + deltaWidth)
+
+                    }
+                    mouseX = it.screenX.toInt()
+                }
+
+            }
+
+
+        }
     }
 
-
-    // Sample data variables left out (iPhoneUserAgent, TornadoFXScreencastsURI, people and links)
 }

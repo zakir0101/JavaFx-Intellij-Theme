@@ -3,11 +3,14 @@ package com.javafx.intellijtheme.intellij
 import com.javafx.intellijtheme.*
 import javafx.event.EventTarget
 import javafx.geometry.Pos
+import javafx.scene.Cursor
 import javafx.scene.Node
 import javafx.scene.control.MenuBar
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
 import javafx.stage.Screen
 import javafx.stage.Stage
 import javafx.stage.StageStyle
@@ -23,14 +26,15 @@ class CustomStage(
     minWidth: Int = 720,
     minHeight: Int = 420,
     borderWidths: Double = 3.0
-) : BorderPane() {
+) : StackPane() {
     val borderWidth = 4.0
     val minWindowWidth = minWidth
     val minWindowHeight = minHeight
+     val  myBorderPane = BorderPane()
     var mainView = mainView ?: Region()
         set(main) {
             field = main
-            center = main
+            myBorderPane.center = main
         }
 
     var menubar: MenuBar = menu ?: MenuBar()
@@ -42,111 +46,187 @@ class CustomStage(
     val menubarContainer = group()
 
     init {
-        reloadStylesheetsOnFocus()
+
         this.maximize()
         this.primaryStage.initStyle(StageStyle.UNDECORATED)
-        primaryStage.isResizable = true
 
         IntellijStyles.darkMode.addListener { _, _, new ->
             this.replaceClassIf(IntellijStyles.stageDark, IntellijStyles.stageLight, new)
         }
 
+        primaryStage.isResizable = true
+
+        this.addChildIfPossible(myBorderPane)
+        myBorderPane .apply {
+            useMaxSize = true
+            style{
+                backgroundColor += Color.TRANSPARENT
+            }
+            //*******************************************************
+            //***************** Center
+            //*******************************************************
+
+            center = mainView
+
+            //*******************************************************
+            //***************** TOP
+            //*******************************************************
+            setupAppbar()
+
+            //*******************************************************
+            //***************** BOTTOM
+            //*******************************************************
+
+            bottom = hbox {
+                useMaxWidth = true
+                setHeightExact(borderWidth)
+                id = "stage-border-bottom"
+
+                var mouseY = 0
+                this.setOnMouseReleased {
+                    mouseY = 0
+                }
+                this.setOnMouseDragged {
+                    if (primaryStage.isMaximized)
+                        return@setOnMouseDragged
+                    val height = it.screenY.toInt() - mouseY
+                    if (mouseY != 0 && (primaryStage.height + height) > minWindowHeight) {
+                        primaryStage.height += height
+                    }
+                    mouseY = it.screenY.toInt()
+                }
+
+
+            }
+
+
+            //*******************************************************
+            //***************** Left
+            //*******************************************************
+
+            left = vbox() {
+                useMaxHeight = true
+                setWidthExact(borderWidth)
+                id = "stage-border-left"
+                var mouseX = 0.0
+                this.setOnMouseReleased {
+                    mouseX = 0.0
+                }
+                this.setOnMouseDragged {
+
+                    if (primaryStage.isMaximized)
+                        return@setOnMouseDragged
+                    val deltaWidth = it.screenX - mouseX
+                    if (mouseX != 0.0 && (primaryStage.width - deltaWidth) > minWindowWidth   ) {
+                        primaryStage.width -= deltaWidth
+                        primaryStage.x += deltaWidth
+                    }
+                    mouseX = it.screenX
+                }
+            }
+
+            //*******************************************************
+            //***************** RIGHT
+            //*******************************************************
+
+
+            right = vbox {
+                useMaxHeight = true
+                setWidthExact(borderWidth)
+                id = "stage-border-right"
+
+                var mouseX = 0
+                this.setOnMouseReleased {
+                    mouseX = 0
+                }
+                this.setOnMouseDragged {
+                    if (primaryStage.isMaximized)
+                        return@setOnMouseDragged
+                    val width = it.screenX.toInt() - mouseX
+                    if (mouseX != 0 && (primaryStage.width + width) > minWindowWidth) {
+                        primaryStage.width += width
+
+                    }
+                    mouseX = it.screenX.toInt()
+                }
+            }
+            //*******************************************************
+            //***************** END von Borderpane
+            //*******************************************************
+        }
+
         //*******************************************************
-        //***************** Center
+        //***************** right Corner
         //*******************************************************
 
-        center = mainView
-
-        //*******************************************************
-        //***************** TOP
-        //*******************************************************
-        setupAppbar()
-
-        //*******************************************************
-        //***************** BOTTOM
-        //*******************************************************
-
-        bottom = hbox {
-            useMaxWidth = true
-            setHeightExact(borderWidth)
-            id = "stage-border-bottom"
-
+        region {
+            id = "stage-corner-right"
+            this.stackpaneConstraints {
+                alignment = Pos.BOTTOM_RIGHT
+            }
+            setWidthExact(borderWidth*2)
+            setHeightExact(borderWidth*2)
+            var mouseX = 0
             var mouseY = 0
             this.setOnMouseReleased {
+                mouseX = 0
                 mouseY = 0
             }
             this.setOnMouseDragged {
                 if (primaryStage.isMaximized)
                     return@setOnMouseDragged
+                val width = it.screenX.toInt() - mouseX
                 val height = it.screenY.toInt() - mouseY
+                if (mouseX != 0 && (primaryStage.width + width) > minWindowWidth) {
+                    primaryStage.width += width
+                }
                 if (mouseY != 0 && (primaryStage.height + height) > minWindowHeight) {
                     primaryStage.height += height
+
                 }
+                mouseX = it.screenX.toInt()
+                mouseY = it.screenY.toInt()
+            }
+        }
+
+
+        region {
+            id = "stage-corner-left"
+
+            this.stackpaneConstraints {
+                alignment = Pos.BOTTOM_LEFT
+            }
+            setWidthExact(borderWidth*2)
+            setHeightExact(borderWidth*2)
+            var mouseX = 0
+            var mouseY = 0
+            this.setOnMouseReleased {
+                mouseX = 0
+                mouseY = 0
+            }
+
+            this.setOnMouseDragged {
+                if (primaryStage.isMaximized)
+                    return@setOnMouseDragged
+                val width = it.screenX.toInt() - mouseX
+                val height = it.screenY.toInt() - mouseY
+                if (mouseX != 0 && (primaryStage.width - width) > minWindowWidth) {
+                    primaryStage.x += width
+                    primaryStage.width -= width
+                }
+                if (mouseY != 0 && (primaryStage.height + height) > minWindowHeight) {
+                    primaryStage.height += height
+
+                }
+                mouseX = it.screenX.toInt()
                 mouseY = it.screenY.toInt()
             }
 
-
         }
-
-
-        //*******************************************************
-        //***************** Left
-        //*******************************************************
-
-        left = vbox() {
-            useMaxHeight = true
-            setWidthExact(borderWidth)
-            id = "stage-border-left"
-            var mouseX = 0
-            this.setOnMouseReleased {
-                mouseX = 0
-            }
-            this.setOnMouseDragged {
-                if (primaryStage.isMaximized)
-                    return@setOnMouseDragged
-                val width = it.screenX.toInt() - mouseX
-                if (mouseX != 0 && (primaryStage.width - width) > minWindowWidth) {
-                    primaryStage.x += it.screenX.toInt() - mouseX
-                    primaryStage.width -= width
-                }
-                mouseX = it.screenX.toInt()
-            }
-        }
-
-        //*******************************************************
-        //***************** RIGHT
-        //*******************************************************
-
-
-        right = vbox {
-            useMaxHeight = true
-            setWidthExact(borderWidth)
-            id = "stage-border-right"
-
-            var mouseX = 0
-            this.setOnMouseReleased {
-                mouseX = 0
-            }
-            this.setOnMouseDragged {
-                if (primaryStage.isMaximized)
-                    return@setOnMouseDragged
-                val width = it.screenX.toInt() - mouseX
-                if (mouseX != 0 && (primaryStage.width + width) > minWindowWidth) {
-                    primaryStage.width += width
-
-                }
-                mouseX = it.screenX.toInt()
-            }
-        }
-        //*******************************************************
-        //***************** END
-        //*******************************************************
-
-
     }
 
     private fun setupAppbar() {
-        top = hbox(alignment = Pos.CENTER_LEFT) {
+        myBorderPane.top = hbox(alignment = Pos.CENTER_LEFT) {
             var mouseX = 0
             var mouseY = 0
             this.setOnMouseReleased {

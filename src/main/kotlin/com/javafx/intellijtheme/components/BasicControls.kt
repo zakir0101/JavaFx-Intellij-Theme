@@ -127,7 +127,7 @@ class BasicControls : View() {
                 group {
                     val toggleGroup = ToggleGroup()
 
-                    val root = vbox(spacing = 5.0) {
+                     vbox(spacing = 5.0) {
                         padding = insets(0.0,10.0)
                         radiobutton("Employee", toggleGroup)
                         radiobutton("Contractor", toggleGroup)

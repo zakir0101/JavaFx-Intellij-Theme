@@ -31,7 +31,7 @@ tasks.withType(JavaCompile) {
 application {
     mainModule = 'com.javafx.intellijtheme'
     mainClass = 'com.javafx.intellijtheme.MyApp'
-    applicationDefaultJvmArgs = ['--add-opens=javafx.graphics/javafx.scene=tornadofx']
+    applicationDefaultJvmArgs = ['--add-opens=javafx.graphics/javafx.scene=tornadofx','--add-opens=javafx.controls/javafx.scene.control=tornadofx']
 }
 
 [compileKotlin, compileTestKotlin].forEach {
