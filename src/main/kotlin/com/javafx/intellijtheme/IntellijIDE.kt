@@ -13,7 +13,10 @@ class IntellijIDE : View() {
     lateinit var leftDrawer: Drawer
     lateinit var rightDrawer: Drawer
     lateinit var bottomDrawer: Drawer
+    private   var lastBottomHeight = 300.0
+
     val mainWindow: VBox = VBox()
+
 
     override val root = stackpane {
         IntellijStyles.darkMode.addListener { _, _, isDark ->
@@ -34,8 +37,6 @@ class IntellijIDE : View() {
             this.contentArea.children.onChange {
                 adjustTabpaneWidth()
             }
-
-
 
 
         }
@@ -64,7 +65,6 @@ class IntellijIDE : View() {
 
         bottomDrawer = drawer(side = Side.BOTTOM) {
             id = "bottom-drawer"
-
             stackpaneConstraints {
                 this.alignment = Pos.BOTTOM_CENTER
             }
@@ -73,10 +73,16 @@ class IntellijIDE : View() {
             }
             this.contentArea.children.onChange {
                 adjustTabpaneHeight()
+                 if (bottomDrawer.contentArea.children.isEmpty()) {
+                     lastBottomHeight = bottomDrawer.prefHeight
+                     bottomDrawer.setHeightExact(25.0)
+                 }
+                 else {
+                     bottomDrawer.setHeightExact(lastBottomHeight)
+                 }
             }
-            setHeightExact(300.0)
+            setHeightExact(lastBottomHeight)
             useMaxWidth = true
-
 
 
         }
@@ -116,7 +122,14 @@ class IntellijIDE : View() {
                 newHeight = primaryStage.height - 151.0
             if (newHeight <= 55.0)
                 newHeight = 56.0
-            bottomDrawer.setHeightExact(newHeight)
+
+            if (bottomDrawer.contentArea.children.isEmpty()) {
+                lastBottomHeight = newHeight
+            }
+            else {
+                bottomDrawer.setHeightExact(newHeight)
+            }
+            adjustTabpaneHeight()
         }
 
 
@@ -127,39 +140,41 @@ class IntellijIDE : View() {
             val leftWidth = if (leftDrawer.contentArea.children.isNotEmpty()) leftDrawer.width else (25.0)
             val rightWidth = if (rightDrawer.contentArea.children.isNotEmpty()) rightDrawer.width else (25.0)
 
-            val remainingWidthForLeft = newWidth.toDouble() -  newWidthLeft
+            val remainingWidthForLeft = newWidth.toDouble() - newWidthLeft
             val remainingWidthForRight = newWidth.toDouble() - newWidthRight
-            if ( remainingWidthForLeft < 151.0)
+            if (remainingWidthForLeft < 151.0)
                 newWidthLeft = newWidth.toDouble() - 151.0
-            if ( remainingWidthForRight < 151.0)
+            if (remainingWidthForRight < 151.0)
                 newWidthRight = newWidth.toDouble() - 151.0
             if (newWidthRight <= 55.0)
                 newWidthRight = 56.0
             if (newWidthLeft <= 55.0)
                 newWidthLeft = 56.0
             val remainingBetween = newWidth.toDouble() - newWidthRight - newWidthLeft
-            if(remainingBetween <= 55.0){
-                if(newWidthLeft < newWidthRight)
+            if (remainingBetween <= 55.0) {
+                if (newWidthLeft < newWidthRight)
                     newWidthRight -= 55.0
                 else
                     newWidthLeft -= 55
             }
             leftDrawer.setWidthExact(newWidthLeft)
             rightDrawer.setWidthExact(newWidthRight)
+            adjustTabpaneWidth()
         }
 
     }
 
     private fun adjustTabpaneHeight() {
         val newHeight = if (bottomDrawer.contentArea.children.isNotEmpty()) bottomDrawer.height else 25.0
-            mainWindow.setHeightExact(primaryStage.height - 25.0 - 3.0 - newHeight)
+        mainWindow.setHeightExact(primaryStage.height - 28.0 - 3.0 - newHeight)
+        leftDrawer.contentArea.paddingBottom =(  newHeight )
     }
 
     private fun adjustTabpaneWidth() {
         val leftWidth = if (leftDrawer.contentArea.children.isNotEmpty()) leftDrawer.width else (25.0)
         val rightWidth = if (rightDrawer.contentArea.children.isNotEmpty()) rightDrawer.width else (25.0)
 
-          mainWindow.setWidthExact(primaryStage.width - leftWidth - 3.0 * 2 - rightWidth)
+        mainWindow.setWidthExact(primaryStage.width - leftWidth - 3.0 * 2 - rightWidth)
         mainWindow.translateX = leftWidth - 1.0
 
     }

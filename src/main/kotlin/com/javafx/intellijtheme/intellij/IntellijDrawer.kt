@@ -21,9 +21,11 @@ fun Drawer.intellijDrawerItem(
     expanded: Boolean = false,
     showHeader: Boolean = multiselect,
     op: VBox.() -> Unit
-) {
+):DrawerItem {
+    val borderWidth = 3.0
     val drawer = this
     val item = this.item(title, icon, expanded, false, {})
+
     this.contentArea.style {
         backgroundColor += Color.TRANSPARENT
     }
@@ -33,7 +35,7 @@ fun Drawer.intellijDrawerItem(
         item.region {
             addClass(IntellijStyles.drawerItemResizer)
 
-            setHeightExact(5.0)
+            setHeightExact(borderWidth)
             useMaxWidth = true
             style (append = true) {
                 cursor = Cursor.N_RESIZE
@@ -63,7 +65,7 @@ fun Drawer.intellijDrawerItem(
 
             vgrow = Priority.ALWAYS
             this.region {
-                setWidthExact(5.0)
+                setWidthExact(borderWidth)
                 useMaxHeight = true
                 addClass(IntellijStyles.drawerItemResizer)
                 style (append = true) {
@@ -95,7 +97,6 @@ fun Drawer.intellijDrawerItem(
             }
 
 
-
             this.vbox {
 
 
@@ -104,6 +105,7 @@ fun Drawer.intellijDrawerItem(
             }
         }
     } else if (drawer.dockingSide == Side.LEFT) {
+//        item.alignment = Pos.TOP_CENTER
         item.hbox {
             vgrow = Priority.ALWAYS
 
@@ -122,7 +124,7 @@ fun Drawer.intellijDrawerItem(
             }
 
             this.region {
-                setWidthExact(5.0)
+                setWidthExact(borderWidth)
                 useMaxHeight = true
                 addClass(IntellijStyles.drawerItemResizer)
                 style (append = true) {
@@ -157,5 +159,5 @@ fun Drawer.intellijDrawerItem(
 
         }
     }
-
+return item
 }

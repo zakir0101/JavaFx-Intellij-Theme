@@ -3,12 +3,18 @@ package com.javafx.intellijtheme
 import com.javafx.intellijtheme.components.Person
 import com.javafx.intellijtheme.components.people
 import com.javafx.intellijtheme.intellij.*
+import javafx.event.Event
+import javafx.scene.control.Tab
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Priority
+import javafx.scene.web.WebView
 import org.kordamp.ikonli.javafx.FontIcon
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC
 import org.kordamp.ikonli.materialdesign2.MaterialDesignF
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH
 import tornadofx.*
+
 
 class MyApp : App(MainView::class, MyStyles::class) {
 
@@ -18,6 +24,7 @@ class MainView : View("Intellij UI Components") {
     val javaFxComponents: JavaFxComponents by inject()
     val intellijIDE: IntellijIDE by inject()
     val intellijTabPane: IntellijTabPane by inject()
+    val intellijProjectExplorer: IntellijProjectExplorer by inject()
 
     override val root = intellijStage(primaryStage) {
         menubar = menubar {
@@ -28,6 +35,7 @@ class MainView : View("Intellij UI Components") {
                 item("Copy") {
                 }
                 item("Paste")
+
             }
             menu("View") {
                 text
@@ -48,7 +56,7 @@ class MainView : View("Intellij UI Components") {
             }
 
             menu("Mode") {
-                item("JavaFx Components", keyCombination = "Alt+1") {
+                item("JavaFx Components", keyCombination = "Alt+3") {
                     action {
                         mainView = javaFxComponents.root
 //                        IntellijStyles.updateTheme()
@@ -70,12 +78,30 @@ class MainView : View("Intellij UI Components") {
         intellijIDE.apply {
             val view = this
             leftDrawer.apply {
-                for (i in 1..2) {
-                    intellijDrawerItem(view, "Hospitals", expanded = true,icon = FontIcon().from(MaterialDesignH.HOSPITAL)) {
+               val drawerItem = intellijDrawerItem(
+                    view,
+                    "Hospitals",
+                    expanded = true,
+                    icon = FontIcon().from(MaterialDesignH.HOSPITAL)
+                ) {
 
-                    }
+                    addChildIfPossible(intellijProjectExplorer.root)
                 }
 
+                drawerItem.apply {
+                    shortcut(combo = "Alt+4"){
+                        val tree = intellijProjectExplorer.treeView
+                        if(this@apply.expanded) {
+                            this.expandedProperty.set(false)
+                            intellijTabPane.tabPane.requestFocus()
+                        }
+                        else {
+                            this.expandedProperty.set(true)
+                            tree.requestFocus()
+                            tree.selectionModel.select(tree.selectionModel.selectedItem)
+                        }
+                    }
+                }
             }
             rightDrawer.apply {
                 for (i in 1..1) {
@@ -122,27 +148,20 @@ class MainView : View("Intellij UI Components") {
                 IntellijStyles.darkMode.addListener { _, _, isDark ->
                     this.replaceClassIf(IntellijStyles.basicControlDark, IntellijStyles.basicControlLight, isDark)
                 }
-                scrollpane {
-                    style {
-                        borderWidth = multi(box(0.px))
-                        padding = box(0.px)
-                    }
-
-                    isFitToWidth = true
-                    isFitToHeight = true
+                intellijTabPane.root.apply {
                     vgrow = Priority.ALWAYS
-                    addChildIfPossible(intellijTabPane.root.apply {
-                        this.setMinSize(300.0, 300.0)
-                    })
+                    this.setMinSize(300.0, 300.0)
 
                 }
+                addChildIfPossible(intellijTabPane.root)
+
             }
         }
     }
 
     init {
         reloadStylesheetsOnFocus()
-        IntellijStyles.setLightMode()
+        IntellijStyles.setDarkMode()
 
     }
 

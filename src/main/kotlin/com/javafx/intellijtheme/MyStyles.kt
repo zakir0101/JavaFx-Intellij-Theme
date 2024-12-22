@@ -17,6 +17,8 @@ class MyStyles : IntellijStyles() {
         val myGridPaneItem by cssclass()
         val myGridPaneLable by cssclass()
         val bottomDrawer by cssid()
+
+
     }
 
     init {
@@ -76,6 +78,9 @@ class MyStyles : IntellijStyles() {
 
             }
 
+        }
+        webView{
+            padding = box(20.px , 0.px,0.px,0.px)
         }
 
 //        DrawerStyles.drawer {

@@ -2,12 +2,16 @@ package com.javafx.intellijtheme.intellij
 
 import com.javafx.intellijtheme.FontIconStyle
 import com.javafx.intellijtheme.MyStyles
+import com.javafx.intellijtheme.from
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.Cursor
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
+import org.kordamp.ikonli.javafx.FontIcon
+import org.kordamp.ikonli.materialdesign2.MaterialDesignB
+import org.kordamp.ikonli.materialdesign2.MaterialDesignW
 import tornadofx.*
 
 class StyleColor(var light: Color, val dark: Color) {
@@ -76,6 +80,11 @@ open class IntellijStyles : Stylesheet() {
 
         val intellijTableLight by cssclass()
         val intellijTableDark by cssclass()
+
+        val intellijFileExplorerLight by cssclass()
+        val intellijFileExplorerDark by cssclass()
+        val defaultFileIcon by cssclass()
+
         val primary = StyleColor(Color.web("#F2F2F2"), Color.web("#3C3F41"))
         val primarySelected = StyleColor(Color.web("#D4D4D4"), Color.web("#0D293E"))
         val onPrimarySelected = StyleColor(Color.BLACK, Color.WHITE)
@@ -768,6 +777,17 @@ open class IntellijStyles : Stylesheet() {
                         fill = onPrimary.get(index)
                         fontSize = 16.px
                     }
+
+
+                    tabCloseButton {
+                        shape =
+                            "M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"
+                        fill = onPrimary.get(index)
+                        backgroundColor += onPrimary.get(index)
+                        scaleX = 0.5
+                        scaleY = 0.5
+                    }
+
                     and(selected) {
                         backgroundColor += primary.get(index).brighter()
                         borderColor = multi(
@@ -805,6 +825,8 @@ open class IntellijStyles : Stylesheet() {
                         }
                     }
                 }
+
+
             }
 
 
@@ -874,7 +896,7 @@ open class IntellijStyles : Stylesheet() {
                 DrawerStyles.drawerItem {
                     backgroundColor += Color.TRANSPARENT
                     drawerItemResizer {
-                        backgroundColor += primary.get(index)
+                        backgroundColor += onPrimaryVariant.get(index)
                     }
                 }
 
@@ -890,6 +912,11 @@ open class IntellijStyles : Stylesheet() {
                     padding = box(0.px)
 
                     backgroundColor = multi(primary.get(index))
+                    borderWidth = multi(box(0.5.px))
+                    borderColor =
+                        multi(box(if (index == Dark) secondary.get(index) else onPrimaryVariant.get(index)))
+
+
                     toggleButton {
                         padding = box(4.px, 8.px, 4.px, 8.px)
                         backgroundInsets = multi(box(0.px))
@@ -1027,6 +1054,150 @@ open class IntellijStyles : Stylesheet() {
             }
         }
 
+        // *******************************************************************
+        // ********************* Intellij File Explorer    ***********************************
+        // *******************************************************************
+
+        listOf(intellijFileExplorerLight, intellijFileExplorerDark).forEachIndexed { index, cssRule ->
+
+            val stops = listOf(Stop(0.0, primary.get(index)), Stop(1.0, secondary.get(index)));
+            val lg1 = LinearGradient(0.0, 0.0, 0.0, 1.0, true, CycleMethod.NO_CYCLE, stops)
+
+            cssRule {
+                titledPane {
+                    borderWidth = multi(box(0.5.px, 0.px, 0.5.px, 0.px))
+                    borderColor = multi(box(onPrimaryVariant.get(index)))
+                    borderInsets = multi(box(0.px))
+                    borderRadius = multi(box(0.px))
+                    backgroundInsets = multi(box(0.px))
+                    backgroundColor = multi(lg1)
+//
+//                      text{
+//                        fill = onPrimary.get(index)
+//                        textFill = onPrimary.get(index)
+//                    }
+//                    arrow{
+//                        backgroundColor += onPrimary.get(index)
+//                    }
+//                    and(focused){
+//
+//                    }
+                    title {
+                        borderColor = multi(box(Color.TRANSPARENT))
+                        borderInsets = multi(box(0.px))
+                        backgroundColor = multi(lg1)
+                        text {
+                            fill = onPrimary.get(index)
+                            textFill = onPrimary.get(index)
+                        }
+                        arrowButton {
+                            arrow {
+                                backgroundColor += onPrimary.get(index)
+                            }
+                        }
+
+                    }
+                    content {
+                        backgroundColor = multi(if (index == Light) secondary.get(index) else primary.get(index))
+                        backgroundColor += Color.RED
+                        padding = box(0.px)
+                        borderWidth = multi(box(0.px))
+                    }
+
+                }
+
+
+                treeView {
+                    backgroundInsets = multi(box(0.px))
+                    backgroundColor = multi(if (index == Light) secondary.get(index) else primary.get(index))
+                    treeCell {
+                        backgroundColor += Color.TRANSPARENT
+                        text {
+                            fill = onPrimary.get(index)
+                            textFill = onPrimary.get(index)
+                        }
+                        arrow {
+                            backgroundColor += onPrimary.get(index)
+                        }
+                        defaultFileIcon {
+                            fill = onPrimaryVariant.get(index)
+                            backgroundColor += onPrimaryVariant.get(index)
+                        }
+                        and(selected) {
+                            backgroundColor += primarySelected.get(index)
+                            text {
+                                fill = onPrimarySelected.get(index)
+                                textFill = onPrimarySelected.get(index)
+                            }
+
+                            arrow {
+                                backgroundColor += onPrimarySelected.get(index)
+                            }
+                        }
+
+                    }
+
+                    scrollBar {
+                        fontSize = 8.px
+                        backgroundInsets = multi(box(0.px))
+                        backgroundColor = multi(primary.get(index))
+                        borderColor = multi(box(onPrimaryVariant.get(index)))
+                        borderWidth = multi(box(0.5.px))
+                        listOf(vertical, horizontal).forEach { orent ->
+                            and(orent) {
+                                if ("vertical" == orent.name) {
+                                    borderWidth = multi(box(0.px))
+                                }
+                                if (orent.name == "horizontal")
+                                    borderWidth = multi(box(0.px))
+                                borderRadius = multi(box(0.px))
+                                borderColor = multi(box(primary.get(index)))
+
+
+
+
+                                track {
+                                    backgroundColor += Color.TRANSPARENT
+                                }
+                                Stylesheet.thumb {
+
+                                    padding = box(1.px)
+                                    backgroundColor += if (index == Dark) tertiary2.get(index).darker()
+                                        .grayscale() else primarySelected.get(index)
+                                }
+
+
+                                listOf(incrementButton, decrementButton, incrementArrow, decrementArrow).forEach {
+                                    it {
+                                        backgroundColor = multi(Color.TRANSPARENT)
+                                        borderColor = multi(box(Color.TRANSPARENT))
+                                    }
+                                }
+
+
+                            }
+
+                        }
+                    }
+
+
+                    corner {
+                        backgroundInsets = multi(box(0.px))
+                        backgroundColor = multi(primary.get(index))
+                        padding = box(0.px)
+
+                    }
+
+
+
+
+
+
+
+
+                }
+            }
+        }
 
     }
 }

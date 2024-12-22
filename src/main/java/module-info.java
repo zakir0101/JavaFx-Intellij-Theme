@@ -6,10 +6,12 @@ module com.javafx.intellijtheme {
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.materialdesign2;
-
+//    requires eu.mihosoft.monacofx;
     requires kotlin.stdlib;
     requires tornadofx;
     requires java.desktop;
+    requires kotlin.stdlib.jdk7;
+    requires jdk.jsobject;
     opens com.javafx.intellijtheme to javafx.fxml;
     opens com.javafx.intellijtheme.intellij to javafx.fxml ;
     opens com.javafx.intellijtheme.components to javafx.fxml;

@@ -6,7 +6,7 @@ plugins {
     id 'org.beryx.jlink' version '2.25.0'
 }
 
-group 'com.zakir0101'
+group 'com.javafx'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -34,6 +34,7 @@ application {
     applicationDefaultJvmArgs = ['--add-opens=javafx.graphics/javafx.scene=tornadofx','--add-opens=javafx.controls/javafx.scene.control=tornadofx']
 }
 
+
 [compileKotlin, compileTestKotlin].forEach {
     it.kotlinOptions {
         jvmTarget = '11'
@@ -42,12 +43,12 @@ application {
 
 
 javafx {
-    version = '15'
+    version = '16'
     modules = ['javafx.controls', 'javafx.fxml','javafx.graphics','javafx.web','javafx.media','javafx.swing',]
 }
 
 dependencies {
-
+//    implementation 'eu.mlihosoft.monacofx:monacofx:0.0.8'
 
     implementation ('no.tornado:tornadofx:2.0.0-SNAPSHOT')
     implementation("org.apache.httpcomponents:httpclient:4.5.3")
